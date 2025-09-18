@@ -40,7 +40,37 @@ class AppReservaSalas(QWidget):
         for sala in self.salas:
             botao = QPushButton(f"Reservar {sala}")
             botao.setFixedHeight(50)
-            botao.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 8px; } QPushButton:hover { background-color: #45a049; }")
+            botao.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 8px; font-size: 18px; } QPushButton:hover { background-color: #45a049; }")
+            botao.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            botao.clicked.connect(lambda _, s=sala: self.reservar_sala(s))
+            self.botoes[sala] = botao
+            layout_principal.addWidget(botao)
+
+    def criar_interface(self):
+        layout_principal = QVBoxLayout()
+        layout_principal.setSpacing(10)
+        self.setLayout(layout_principal)
+
+        titulo = QLabel(f"Bem-vindo(a), {self.nome_usuario}!")
+        titulo.setStyleSheet("font-size: 16px; font-weight: bold; color: #333;")
+        titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout_principal.addWidget(titulo)
+
+        for sala in self.salas:
+            botao = QPushButton(f"Reservar {sala}")
+            botao.setFixedHeight(50)
+            # Define o estilo inicial do botão, incluindo a fonte.
+            botao.setStyleSheet("""
+                QPushButton {
+                    background-color: #4CAF50; 
+                    color: white; 
+                    border-radius: 8px; 
+                    font-size: 18px; 
+                }
+                QPushButton:hover {
+                    background-color: #45a049; 
+                }
+            """)
             botao.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             botao.clicked.connect(lambda _, s=sala: self.reservar_sala(s))
             self.botoes[sala] = botao
@@ -50,11 +80,32 @@ class AppReservaSalas(QWidget):
         for sala, status in self.salas.items():
             botao = self.botoes[sala]
             if status is None:
-                botao.setText(f"Reservar {sala}")
-                botao.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 8px; } QPushButton:hover { background-color: #45a049; }")
+                # Altera apenas a cor do botão, mantendo os outros estilos.
+                botao.setStyleSheet("""
+                    QPushButton {
+                        background-color: #4CAF50; 
+                        color: white; 
+                        border-radius: 8px; 
+                        font-size: 18px; 
+                    }
+                    QPushButton:hover {
+                        background-color: #45a049; 
+                    }
+                """)
             else:
+                # Altera a cor do botão para o estado 'ocupado'.
                 botao.setText(f"Sala {sala} - Ocupada")
-                botao.setStyleSheet("QPushButton { background-color: #F44336; color: white; border-radius: 8px; } QPushButton:hover { background-color: #D32F2F; }")
+                botao.setStyleSheet("""
+                    QPushButton {
+                        background-color: #F44336; 
+                        color: white; 
+                        border-radius: 8px; 
+                        font-size: 18px; 
+                    }
+                    QPushButton:hover {
+                        background-color: #D32F2F; 
+                    }
+                """)
             
             botao.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 

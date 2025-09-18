@@ -18,21 +18,32 @@ class AppCadastro(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        layout.addWidget(QLabel("Nome:"))
+        nome_label = QLabel("Nome:")
+        nome_label.setStyleSheet("font-size: 14px;")
+        layout.addWidget(nome_label)
         self.nome_entry = QLineEdit()
+        self.nome_entry.setStyleSheet("padding: 5px;")
         layout.addWidget(self.nome_entry)
 
-        layout.addWidget(QLabel("Matrícula:"))
+        
+        matricula_label = QLabel("Matricula:")
+        matricula_label.setStyleSheet("font-size: 14px;")
+        layout.addWidget(matricula_label)
         self.matricula_entry = QLineEdit()
+        self.matricula_entry.setStyleSheet("padding: 5px;")
         layout.addWidget(self.matricula_entry)
 
-        layout.addWidget(QLabel("Senha:"))
+        
+        senha_label = QLabel("Senha:")
+        senha_label.setStyleSheet("font-size: 14px;")
+        layout.addWidget(senha_label)
         self.senha_entry = QLineEdit()
         self.senha_entry.setEchoMode(QLineEdit.EchoMode.Password)
+        self.senha_entry.setStyleSheet("padding: 5px;")
         layout.addWidget(self.senha_entry)
 
         botao_salvar = QPushButton("Salvar")
-        botao_salvar.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 5px; } QPushButton:hover { background-color: #45a049; }")
+        botao_salvar.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 5px; font-size: 14px; padding: 12px; margin-top: 10px; } QPushButton:hover { background-color: #45a049; }")
         botao_salvar.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         botao_salvar.clicked.connect(self.salvar_cadastro)
         layout.addWidget(botao_salvar)

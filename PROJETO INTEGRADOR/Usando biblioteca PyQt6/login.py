@@ -21,20 +21,20 @@ class AppLogin(QWidget):
         self.setLayout(layout_principal)
 
         titulo = QLabel("Bem-vindo(a)!")
-        titulo.setStyleSheet("font-size: 16px; font-weight: bold; color: #333;")
+        titulo.setStyleSheet("font-size: 19px; font-weight: bold; color: #333;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout_principal.addWidget(titulo)
 
         botao_cadastrar = QPushButton("Cadastrar")
         botao_cadastrar.setFixedHeight(40)
-        botao_cadastrar.setStyleSheet("QPushButton { background-color: #2196F3; color: white; border-radius: 5px; } QPushButton:hover { background-color: #1976D2; }")
+        botao_cadastrar.setStyleSheet("QPushButton { background-color: #2196F3; color: white; border-radius: 5px; font-size: 18px; } QPushButton:hover { background-color: #1976D2; }")
         botao_cadastrar.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         botao_cadastrar.clicked.connect(self.abrir_tela_cadastro)
         layout_principal.addWidget(botao_cadastrar)
 
         botao_entrar = QPushButton("Entrar")
         botao_entrar.setFixedHeight(40)
-        botao_entrar.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 5px; } QPushButton:hover { background-color: #45a049; }")
+        botao_entrar.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; border-radius: 5px; font-size: 18px; } QPushButton:hover { background-color: #45a049; }")
         botao_entrar.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         botao_entrar.clicked.connect(self.fazer_login)
         layout_principal.addWidget(botao_entrar)
