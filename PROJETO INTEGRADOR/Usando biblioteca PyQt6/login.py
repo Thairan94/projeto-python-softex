@@ -5,9 +5,9 @@
 # QLineEdit (campo de entrada de texto).
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMessageBox, QInputDialog, QLineEdit
 # Importa Qt para constantes (ex: centralização).
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QByteArray
 # Importa QCursor para definir o ícone do mouse (mãozinha).
-from PyQt6.QtGui import QCursor
+from PyQt6.QtGui import QCursor, QPixmap
 # Importa as classes das outras telas para navegação.
 from cadastro import AppCadastro
 from reserva import AppReservaSalas
@@ -47,6 +47,9 @@ class AppLogin(QWidget):
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # Adiciona o título ao layout.
         layout_principal.addWidget(titulo)
+
+       
+        
 
         # Cria o botão Cadastrar.
         botao_cadastrar = QPushButton("Cadastrar")

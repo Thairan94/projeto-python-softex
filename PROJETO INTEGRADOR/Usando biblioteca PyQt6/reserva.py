@@ -1,23 +1,13 @@
 # reserva.py
-
-# Importa classes do PyQt6 para criar a interface.
-# QWidget (janela), QVBoxLayout (layout vertical), QPushButton (botão), QLabel (rótulo).
-# QMessageBox (caixa de diálogo de mensagem), QInputDialog (diálogo para entrada/seleção).
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QMessageBox, QInputDialog
-# Importa a classe Qt para acessar constantes (como alinhamento).
 from PyQt6.QtCore import Qt
-# Importa QCursor para mudar o cursor do mouse.
 from PyQt6.QtGui import QCursor
-# Importa a biblioteca datetime e timedelta para trabalhar com datas e cálculos de tempo.
 from datetime import datetime, timedelta
-# Importa as funções de banco de dados para sincronização multiusuário
 from banco import carregar_reservas_do_banco, salvar_reserva_no_banco, deletar_reserva_do_banco
 
-# Define a classe AppReservaSalas, que é a janela principal de reservas.
 class AppReservaSalas(QWidget):
     # Construtor da classe. Recebe a janela anterior (Login), nome e matrícula do usuário.
     def __init__(self, janela_anterior, nome_usuario, matricula_usuario):
-        # Chama o construtor da classe base (QWidget).
         super().__init__()
         # Armazena a janela anterior para navegação.
         self.janela_anterior = janela_anterior
@@ -38,8 +28,8 @@ class AppReservaSalas(QWidget):
         # Inicializa cada sala com todos os slots como None (disponível).
         self.salas = {
             "Biblioteca": {slot: None for slot in self.horarios_slots},
-            "Sala 01": {slot: None for slot in self.horarios_slots},
-            "Sala 02": {slot: None for slot in self.horarios_slots},
+            # "Sala 01": {slot: None for slot in self.horarios_slots},
+            # "Sala 02": {slot: None for slot in self.horarios_slots},
             "Informática": {slot: None for slot in self.horarios_slots},
             "Robótica": {slot: None for slot in self.horarios_slots},
             "Ciências": {slot: None for slot in self.horarios_slots},
@@ -63,7 +53,6 @@ class AppReservaSalas(QWidget):
         num_slots = 5 
         duracao_minutos = 50
 
-        # Loop para criar 5 slots.
         for _ in range(num_slots):
             # Calcula o horário de término.
             hora_fim = hora_inicio + timedelta(minutes=duracao_minutos)
@@ -77,8 +66,12 @@ class AppReservaSalas(QWidget):
     # Método interno para buscar dados do SQLite e atualizar o dicionário self.salas.
     def _carregar_e_mesclar_reservas(self):
         """Carrega dados do banco e mescla com a estrutura de slots."""
-        # Chama a função do banco para buscar todas as reservas persistentes.
-        reservas_db = carregar_reservas_do_banco()
+        try:
+            # Chama a função do banco para buscar todas as reservas persistentes.
+            reservas_db = carregar_reservas_do_banco()
+        except Exception as e:
+            QMessageBox.critical(self, "Erro de Sincronização", f"Falha ao carregar dados do banco: {e}")
+            return
         
         # Itera sobre as salas e seus slots ocupados retornados pelo banco.
         for sala_nome, slots_ocupados in reservas_db.items():
@@ -103,13 +96,13 @@ class AppReservaSalas(QWidget):
 
         # Rótulo de boas-vindas.
         titulo = QLabel(f"Bem-vindo(a), {self.nome_usuario}!")
-        titulo.setStyleSheet("font-size: 16px; font-weight: bold; color: #333;")
+        titulo.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout_principal.addWidget(titulo)
 
         # Subtítulo informativo sobre a regra de limite de reservas.
         subtitulo = QLabel("Máx. 2 reservas por usuário. Clique em uma sala para ver os horários.")
-        subtitulo.setStyleSheet("font-size: 12px; color: #666;")
+        subtitulo.setStyleSheet("font-size: 16px; color: #666;")
         subtitulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout_principal.addWidget(subtitulo)
 
@@ -164,10 +157,14 @@ class AppReservaSalas(QWidget):
         if ok:
             slot_escolhido_completo = dialogo.textValue()
             # Extrai apenas a string do horário, removendo o status entre parênteses.
-            slot_escolhido = slot_escolhido_completo.split(" (")[0]
+            slot_escolhido = slot_escolhido_completo.split(" (")[0].strip()
             
-            # Chama a função principal de reserva/cancelamento.
-            self.reservar_sala(sala, slot_escolhido)
+            # Garante que o slot escolhido é válido.
+            if slot_escolhido in self.horarios_slots:
+                 # Chama a função principal de reserva/cancelamento.
+                 self.reservar_sala(sala, slot_escolhido)
+            else:
+                 QMessageBox.critical(self, "Erro", "Seleção de horário inválida.")
 
     # Método que atualiza a cor dos botões conforme o estado das reservas.
     def atualizar_interface(self):
@@ -224,6 +221,15 @@ class AppReservaSalas(QWidget):
             return
 
         # 2. Lógica de Tentativa de Reserva
+        
+        # 2.1 VERIFICAÇÃO DE CONFLITO DE HORÁRIO (A NOVA REGRA)
+        for outra_sala in self.salas:
+            if outra_sala != sala and self.salas[outra_sala][slot] is not None and self.salas[outra_sala][slot]['matricula'] == self.matricula_usuario:
+                QMessageBox.warning(self, "Conflito de Horário", 
+                                    f"Você já tem uma reserva na sala {outra_sala} para o horário {slot}. Não é permitido reservar o mesmo horário em salas diferentes.")
+                return
+
+        # 2.2 VERIFICAÇÃO DE LIMITE DE 2 RESERVAS
         if info_reserva is not None:
             # Slot ocupado por outro usuário.
             mensagem = (f"O horário {slot} na sala {sala} já está reservado!\n\n"
@@ -232,9 +238,8 @@ class AppReservaSalas(QWidget):
             QMessageBox.warning(self, "Horário Indisponível", mensagem)
         
         else:
-            # 2.1 Verifica a regra de limite de 2 reservas
-            reservas_count = 0
             # Conta o número total de reservas ativas deste usuário.
+            reservas_count = 0
             for sala_slots in self.salas.values():
                 for status in sala_slots.values():
                     if status is not None and status['matricula'] == self.matricula_usuario:
@@ -244,7 +249,7 @@ class AppReservaSalas(QWidget):
                 QMessageBox.warning(self, "Limite Excedido", "Você já tem o máximo de 2 salas/horários reservados. Cancele um para reservar outro.")
                 return
 
-            # 2.2 Faz a nova reserva
+            # 2.3 Faz a nova reserva
             horario_registro = datetime.now().strftime("%H:%M:%S em %d/%m/%Y")
             
             # Chama a função do banco para salvar a nova reserva.
