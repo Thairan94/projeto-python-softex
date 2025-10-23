@@ -28,8 +28,6 @@ class AppReservaSalas(QWidget):
         # Inicializa cada sala com todos os slots como None (disponível).
         self.salas = {
             "Biblioteca": {slot: None for slot in self.horarios_slots},
-            "Sala 01": {slot: None for slot in self.horarios_slots},
-            "Sala 02": {slot: None for slot in self.horarios_slots},
             "Informática": {slot: None for slot in self.horarios_slots},
             "Robótica": {slot: None for slot in self.horarios_slots},
             "Ciências": {slot: None for slot in self.horarios_slots},
